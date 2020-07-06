@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap 4.0  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- QuickBlox For JavaScript SDK -->
+    <script src="https://unpkg.com/quickblox@2.12.7/quickblox.min.js"></script>
+    <!-- <script src="./js/quickblox.min.js" defer></script> -->
+    <script src="https://unpkg.com/navigo@7.1.2/lib/navigo.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js" defer></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/quickblox/2.12.7/quickblox.min.js"></script> -->
+
+    <link rel="icon" href="images/favicon.jpg" type="image/gif" sizes="16x16">
+    <script language="javascript" type="text/javascript">
+       
+    </script>
+
+
+    <link rel="stylesheet" href="./css/style.css">
+    <title>Admin Chat</title>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <!-- <div class="container-fluid"> -->
+        <div class="row outer">
+            <!-- Header Start -->
+            <div class="header-outer">
+                <div class="row">
+                    <div class="col-md-2 col-sm-4 col-xs-3">
+
+                    </div>
+                    <div class="col-md-8 col-sm-6 col-xs-6">
+                        <div class="logo-outer">
+                            <img src="./images/logo.jpg" alt="" class="logo-image" title="kach">
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <div class="header-left">
+                            <div class="back-button">
+                                <!-- <a href=""> -->
+
+                                <img src="https://www.pinclipart.com/picdir/big/339-3396946_png-file-thin-close-icon-png-clipart.png"
+                                    alt="" class="back-arrow" id="closeWindow" title="Close the window">
+                                <!-- </a> -->
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Header End -->
+
+            <div class="container inital-loader" id="initial-loader">
+                <div class="loader">
+                    <p>Loading Chat...</p>
+                    <img src="https://i.ya-webdesign.com/images/loading-png-gif.gif" alt="">
+                </div>
+            </div>
+
+
+            <!-- All User section Start -->
+
+            <div class="col-md-4 col-sm-3 col-xs-3">
+                <div class="left-container" id="left-container">
+                    <ul id="users-list">
+
+
+                    </ul>
+                </div>
+            </div>
+
+
+            <!-- All User section End -->
+
+
+            <!-- Chat to One Person Start -->
+            <div class="col-md-8 col-sm-9 col-xs-9">
+                <div class="right-container" id="right-container">
+                    <div class="username-banner" id="name-banner"></div>
+                    <div class="message-container" id="message-container">
+                        <div class="loader">
+
+                            <img src="https://i.ya-webdesign.com/images/loading-png-gif.gif" alt="">
+                        </div>
+
+
+                        <!-- <div class="mine-messages message-box" id="mine-message" data-msg-id="${item._id}">
+                            <div class="image-outer">
+                                <img src="https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg" alt=""
+                                    class="user-pic">
+                            </div>
+                    
+
+                            <div class="mine-message-box">
+                                <div class="type-message">
+                                   how are you doing temp message?
+                                </div>
+                            </div>
+                            
+                            <div class="delete_icon" onclick='deleteOneMsg("${item._id}")'>
+                                <img src='images/bin.png' title="Delete" />
+                            </div>
+                            <div class="time-chat-incoming" data-msg-id="${item._id}">
+                               14:03
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="send-message">
+                        <input type="text" class="input-message" placeholder="Type a Text Message" id="input-message"
+                            data-user_id="">
+                        <label for="input_files" class="pick_file">
+                            <!-- <button class="pick_file">
+                            </button> -->
+                            <img src='./images/attachment.png' alt="">
+
+                        </label>
+                        <input type="file" class="input_file" id="input_files" name="input_files" accept="image/*">
+                        <button class="send-msg-button" title="Send Message" id="send-button">Send</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Chat to One Person End-->
+        </div>
+        <!-- </div> -->
+
+
+        <audio src="sound/notification.mp3" id="msgSound" ></audio>
+
+
+
+    </div>
+
+
+
+    
+
+    <!-- QuickBlox js file -->
+
+
+    <script src="./js/QB.config.js"></script>
+    <script src="./js/app.js"></script>
+    <!-- <script src="./js/login.js"></script> -->
+
+
+    <!-- Bootstrap js -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>
