@@ -177,8 +177,8 @@ function chatDialogues() {
                                                                 <div class="user-message">
                                                                     ${item.last_message.startsWith("http:") || item.last_message.startsWith("https:")
 
-                            ? "Attachment"
-                            : item.last_message}
+                                                                    ? "Attachment"
+                                                                    : item.last_message}
                                                                 </div>
                                                                 </div>
                                                                 <div class="delete_icon" onclick='deleteAllMessages("${item._id}" , "${item.user_id}")' >
@@ -216,7 +216,7 @@ function getUserMsg(dialogueID, userID, userName) {
 
     var file = document.getElementById("input_files")
     var inputFile = file.files[0];
-    file.File = []
+    file.value = ""
     let inputMsg = document.getElementById("input-message")
     inputMsg.value = ""
     inputMsg.disabled = false
@@ -358,7 +358,7 @@ function getUserMsg(dialogueID, userID, userName) {
                             var fileUID = item.attachments[0].uid;
                             fileUrl = QB.content.privateUrl(fileUID);
                             // var fileUrl = QB.content.publicUrl(fileUID); - content create and upload param 'public' = true
-                            imageHTML = "<img src='" + fileUrl + "' alt='photo'/>";
+                            imageHTML = "<img src= alt='photo'/>";
 
                         }
                         return container.innerHTML += `<div class="your-messages message-box" data-msg-id="${item._id}">
@@ -414,30 +414,27 @@ btn.addEventListener('click', function () {
     let fileInput = document.getElementById("input-message")
 
     const formData = new FormData()
-    formData.append('image', inputFile)
+    formData.append('FilePath', inputFile)
 
     if (inputFile) {
 
         // var params = { name: inputFile.name, file: inputFile, type: inputFile.type, size: inputFile.size, 'public': false };
 
-        fetch("http://localhost:9000/image", {
+        fetch("http://139.59.91.239:3000/uploadFile", {
             method: 'POST',
-            // headers: {'Content-Type':'multipart/form-data'},
-            // 'Access-Control-Allow-Origin': '*',
-            headers: {
-                "Access-Control-Allow-Origin": "*"
-            },
+            // headers: {
+            //     "Access-Control-Allow-Origin" : "*"
+            // },
             body: formData
         })
             .then(function (response) {
-
+                // console.log(response.json());
+                
                 return response.json()
             })
             .then((response) => {
                 console.log(response);
-                let fileUrl = `http://localhost:9000/uploads/${response.filename}`
-
-
+                let fileUrl = response.FilePath
 
                 var msg = {
                     type: 'chat',
@@ -640,7 +637,7 @@ inputField.addEventListener('keypress', function (e) {
 
 
         if (inputFile) {
-            fetch("http://localhost:9000/image", {
+            fetch("http://139.59.91.239:3000/uploadFile", {
                 method: 'POST',
                 // headers: {'Content-Type':'multipart/form-data'},
                 // 'Access-Control-Allow-Origin': '*',
@@ -841,14 +838,14 @@ inputField.addEventListener('keypress', function (e) {
 
 })
 
-input_files.addEventListener("change", function () {
-    var file = document.getElementById("input_files")
+var file = document.getElementById("input_files")
+file.addEventListener("change", function () {
     var inputFile = file.files[0];
     console.log(inputFile);
 
     if (inputFile) {
         if ((inputFile.size / (1024 * 1024)) > 5) {
-            file.File = []
+            file.files = []
             alert("Attachment size is more than 5mb")
             return true
         }
@@ -894,8 +891,14 @@ function onMsgListener(userID) {
             if (dialogue == userId) {
                 let msgDiv = item.getElementsByClassName("user-message")
                 let txtMsg = msgDiv[0].childNodes[0]
+                let txtNode 
+                if(msg.body.startsWith("https:") || msg.body.startsWith("http:")){
+                    
+                    txtNode = document.createTextNode("Attachment")
+                }else{
 
-                let txtNode = document.createTextNode(msg.body)
+                    txtNode = document.createTextNode(msg.body)
+                }
                 txtMsg.remove()
                 msgDiv[0].appendChild(txtNode)
                 userArray.forEach((item, key) => {
@@ -1059,7 +1062,7 @@ function onMsgListener(userID) {
                                                     ${item.name}
                                                     </div>
                                                     <div class="user-message">
-                                                        ${msg.body == "Imonlinerandomlyaa" ? "You have a new message" : msg.body}
+                                                        ${msg.body.startsWith("https:") || msg.body.startsWith("http:") ? "Attachment" : msg.body}
                                                         </div>
                                                     </div>
                                                     <div class="delete_icon" onclick='deleteAllMessages("${item._id}" , "${item.user_id}")' >
@@ -1098,36 +1101,7 @@ function onMsgListener(userID) {
 
 }
 
-// function checkOnlineStatus(userId) {
-//     let userArray = document.querySelectorAll(".user")
 
-//     if (userId) {
-
-//         for (const item of userArray) {
-//             let dialogue = item.dataset.userId
-//             if (dialogue == userId) {
-//                 let msgDiv = item.getElementsByClassName("unreadStatus")
-//                 msgDiv[0].style.color = '#23c552'
-//                 msgDiv[0].title = 'online'
-//                 // console.log(msgDiv[0].style.color);
-
-//                 if (msgDiv[0].style.color == "rgb(35, 197, 82)") {
-
-//                     setTimeout(() => {
-//                         msgDiv[0].title = 'offline'
-//                         msgDiv[0].style.color = '#a9a9a9'
-
-//                     }, 120000);
-
-//                 }
-
-//             }
-
-
-
-//         }
-//     }
-// }
 
 function unreadStatusCount() {
     readStatus()

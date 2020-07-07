@@ -51,20 +51,20 @@ let userArry = []
 
 var CONFIG = {
     on: {
-      sessionExpired: function(handleResponse, retry) {
-        // call handleResponse() if you do not want to process a session expiration,
-        // so an error will be returned to origin request
-        handleResponse();
-        
-        QB.createSession(function(error, session) {
-            console.log(session);
-            console.log(retry);
-            
-            retry(session);
-        });
-      }
+        sessionExpired: function (handleResponse, retry) {
+            // call handleResponse() if you do not want to process a session expiration,
+            // so an error will be returned to origin request
+            handleResponse();
+
+            QB.createSession(function (error, session) {
+                console.log(session);
+                console.log(retry);
+
+                retry(session);
+            });
+        }
     }
-  };
+};
 
 
 
@@ -175,10 +175,14 @@ function chatDialogues() {
                                                                 ${item.name}
                                                                 </div>
                                                                 <div class="user-message">
-                                                                    ${item.last_message.startsWith("http:") || item.last_message.startsWith("https:")
+                                                                    ${
+                        item.last_message.length > 25
 
-                            ? "Attachment"
-                            : item.last_message}
+                            ?
+                            "Attachment"
+                            :
+                            item.last_message
+                        }
                                                                 </div>
                                                                 </div>
                                                                 <div class="delete_icon" onclick='deleteAllMessages("${item._id}" , "${item.user_id}")' >
@@ -213,15 +217,15 @@ function getUserMsg(dialogueID, userID, userName) {
     nameBanner.innerHTML = userName
 
 
-    
+
     var file = document.getElementById("input_files")
     // var inputFile = file.files[0];
-    file.File = []
+    file.value = ""
     let inputMsg = document.getElementById("input-message")
     inputMsg.value = ""
     inputMsg.disabled = false
 
-    
+
     let userList = document.querySelectorAll(".user")
 
     // Change the message status from unread to read > Section Start
@@ -318,10 +322,12 @@ function getUserMsg(dialogueID, userID, userName) {
                         var fileUrl
                         var imageHTML
                         if (item.attachments.length > 0) {
-                            var fileUID = item.attachments[0].uid;
+                            var fileUID = item.message;
                             fileUrl = QB.content.privateUrl(fileUID);
-                            // var fileUrl = QB.content.publicUrl(fileUID); - content create and upload param 'public' = true
+                            // var fileUrl = QB.content.publicUrl(fileUID); // - content create and upload param 'public' = true
                             imageHTML = "<img src='" + fileUrl + "' alt='photo'/>";
+                            console.log(fileUrl);
+
 
                         }
 
@@ -331,10 +337,10 @@ function getUserMsg(dialogueID, userID, userName) {
                                                                 <img src="https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg" alt=""
                                                                 class="user-pic">
                                                             </div>
-                                                            ${ item.message.startsWith("https:") || item.message.startsWith("http:") ?
+                                                            ${item.attachments.length > 0 ?
                                 `<div class="mine-message-box">
                                                                             <div class="type-message">
-                                                                            <img src=${item.message} alt='photo'/>
+                                                                            <img src=${fileUrl} alt='photo'/>
                                                                                                 </div>
                                                                                                 </div>`
 
@@ -355,13 +361,16 @@ function getUserMsg(dialogueID, userID, userName) {
                         `
                     }
                     else {
+
                         var fileUrl
                         var imageHTML
                         if (item.attachments.length > 0) {
-                            var fileUID = item.attachments[0].uid;
+                            var fileUID = item.message;
                             fileUrl = QB.content.privateUrl(fileUID);
-                            // var fileUrl = QB.content.publicUrl(fileUID); - content create and upload param 'public' = true
+                            // var fileUrl = QB.content.publicUrl(fileUID); // - content create and upload param 'public' = true
                             imageHTML = "<img src='" + fileUrl + "' alt='photo'/>";
+                            console.log(fileUrl);
+
 
                         }
                         return container.innerHTML += `<div class="your-messages message-box" data-msg-id="${item._id}">
@@ -369,10 +378,10 @@ function getUserMsg(dialogueID, userID, userName) {
                                                             <img src="https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg" alt=""
                                                                 class="user-pic">
                                                                 </div>
-                                                        ${ item.message.startsWith("https:") || item.message.startsWith("http:") ?
+                                                        ${ item.attachments.length > 0 ?
                                 `<div class="mine-message-box">
                                                 <div class="type-message">
-                                                <img src=${item.message} alt='photo'/>
+                                                <img src=${fileUrl} alt='photo'/>
                                                                     </div>
                                                                     </div>`
 
@@ -414,7 +423,9 @@ btn.addEventListener('click', function () {
 
     var file = document.getElementById("input_files")
     var inputFile = file.files[0];
-    let fileInput = document.getElementById("input-message")
+    let msgInput = document.getElementById("input-message")
+
+    console.log(msgInput);
 
 
 
@@ -434,7 +445,7 @@ btn.addEventListener('click', function () {
                 console.log(fileUrl);
                 var msg = {
                     type: 'chat',
-                    body: fileUrl,
+                    body: fileUID,
                     extension: {
                         save_to_history: 1,
                         attachments: [{ uid: fileUID, type: 'photo' }],
@@ -447,9 +458,9 @@ btn.addEventListener('click', function () {
                 inputField.value = ""
                 msg.id = QB.chat.send(msgSenderID, msg);
 
-                fileInput.value = ""
+                msgInput.value = ""
                 file
-                fileInput.disabled = false
+                msgInput.disabled = false
 
 
                 if (msg.id) {
@@ -628,203 +639,96 @@ inputField.addEventListener('keypress', function (e) {
     let dialog_id = admin.currentDialogue // dialog id of the user
     let _userID = admin.currentUserID   // message reciever id // customer id
 
-    
+
 
     if (enter) {
 
+        if (inputField.value.length > 0) {
 
-        if (inputFile) {
+            let msg = {
+                type: 'chat',
+                body: inputField.value,
+                extension: {
+                    save_to_history: 1,
+                    dialog_id: admin.currentDialogue
+                },
+                markable: 1
+            };
+            var msgSenderID = parseInt(admin.currentUserID);
+            inputField.value = ""
+            msg.id = QB.chat.send(msgSenderID, msg);
 
-            var params = { name: inputFile.name, file: inputFile, type: inputFile.type, size: inputFile.size, 'public': false };
+            if (msg.id) {
+                let div = document.createElement('div')
+                div.classList.add("your-messages", "message-box")
+                let div2 = document.createElement("div")
+                div2.classList.add("image-outer")
+                let img = document.createElement("img")
+                img.src = "https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg"
+                img.classList.add("user-pic")
+                div2.appendChild(img)
+                let div3 = document.createElement("div")
+                div3.classList.add('mine-message-box')
+                let div4 = document.createElement("div")
+                div4.classList.add('type-message')
+                let div4TxtNode = document.createTextNode(msg.body)
+                div4.appendChild(div4TxtNode)
+                div3.appendChild(div4)
+                div.appendChild(div2)
+                div.appendChild(div3)
+
+                let div_del = document.createElement("div")
+                div_del.classList.add("delete_icon")
+                div_del.setAttribute('onclick', `deleteOneMsg("${msg.id}")`)
+                let img_del = document.createElement("img")
+                img_del.src = "images/bin.png"
+                img_del.title = "Delete"
+                div_del.appendChild(img_del)
+                div.appendChild(div_del)
+
+                // <div class="delete_icon" onclick='deleteOneMsg("${item._id}")' >
+                // <img src='images/bin.png' title="Delete"/>
+                // </div>
 
 
-            QB.content.createAndUpload(params, function (err, res) {
-                if (err) {
-                    console.error(err);
-                } else {
-                    var fileUID = res.uid;
 
-                    // prepare a message
-                    let fileUrl = QB.content.privateUrl(fileUID);
-                    console.log(fileUrl);
-                    var msg = {
-                        type: 'chat',
-                        body: fileUrl,
-                        extension: {
-                            save_to_history: 1,
-                            attachments: [{ uid: fileUID, type: 'photo' }],
-                            dialog_id: admin.currentDialogue
-                        },
-                        markable: 1
-                    };
+                let divTime = document.createElement("div")
+                divTime.classList.add("time-chat-sending")
+                let timeTxt = document.createTextNode(new Date().getHours() + ":" + new Date().getMinutes())
+                divTime.appendChild(timeTxt)
+                div.appendChild(divTime)
+                // container.insertBefore(divTime, container.childNodes[0])
+                container.insertBefore(div, container.childNodes[0])
 
-                    var msgSenderID = parseInt(admin.currentUserID);
-                    inputField.value = ""
-                    msg.id = QB.chat.send(msgSenderID, msg);
+                // console.log(_userID, msg);
 
-                    let inputMsg = document.getElementById("input-message")
-                    inputMSg.value = ""
-                    inputMsg.disabled = false
-
-                    if (msg.id) {
-                        let div = document.createElement('div')
-                        div.classList.add("your-messages", "message-box")
-                        let div2 = document.createElement("div")
-                        div2.classList.add("image-outer")
-                        let img = document.createElement("img")
-                        img.src = "https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg"
-                        img.classList.add("user-pic")
-                        div2.appendChild(img)
-                        let div3 = document.createElement("div")
-                        div3.classList.add('mine-message-box')
-                        let div4 = document.createElement("div")
-                        div4.classList.add('type-message')
-                        let img2 = document.createElement("img")
-                        img2.src = fileUrl
-                        div4.appendChild(img2)
-                        div3.appendChild(div4)
-                        div.appendChild(div2)
-                        div.appendChild(div3)
-
-                        let div_del = document.createElement("div")
-                        div_del.classList.add("delete_icon")
-                        div_del.setAttribute('onclick', `deleteOneMsg("${msg.id}")`)
-                        let img_del = document.createElement("img")
-                        img_del.src = "images/bin.png"
-                        img_del.title = "Delete"
-                        div_del.appendChild(img_del)
-                        div.appendChild(div_del)
-
-                        let divTime = document.createElement("div")
-                        divTime.classList.add("time-chat-sending")
-                        let timeTxt = document.createTextNode(new Date().getHours() + ":" + new Date().getMinutes())
-                        divTime.appendChild(timeTxt)
-                        div.appendChild(divTime)
-                        // container.insertBefore(divTime, container.childNodes[0])
-                        container.insertBefore(div, container.childNodes[0])
-
-                        // console.log(_userID, msg);
-
-                        for (const item of userArray) {
-                            let dialogue = item.dataset.userId
-                            if (dialogue == _userID) {
-                                let msgDiv = item.getElementsByClassName("user-message")
-                                let txtMsg = msgDiv[0].childNodes[0]
-                                let txtNode = document.createTextNode("Attachment")
-                                txtMsg.remove()
-                                msgDiv[0].appendChild(txtNode)
-                                userArray.forEach((item, key) => {
-                                    let value = item.getAttribute('data-user-id')
-                                    if (value == _userID) {
-                                        item.remove()
-                                        leftSide.appendChild(item)
-
-                                    }
-
-                                })
-
+                for (const item of userArray) {
+                    let dialogue = item.dataset.userId
+                    if (dialogue == _userID) {
+                        let msgDiv = item.getElementsByClassName("user-message")
+                        let txtMsg = msgDiv[0].childNodes[0]
+                        let txtNode = document.createTextNode(msg.body)
+                        txtMsg.remove()
+                        msgDiv[0].appendChild(txtNode)
+                        userArray.forEach((item, key) => {
+                            let value = item.getAttribute('data-user-id')
+                            if (value == _userID) {
+                                item.remove()
+                                leftSide.appendChild(item)
 
                             }
 
-
-                        }
-                    }
-                    // return true
-                }
-
-
-
-
-            }
-            )
-        }
-        else {
-            if (inputField.value.length > 0) {
-
-                let msg = {
-                    type: 'chat',
-                    body: inputField.value,
-                    extension: {
-                        save_to_history: 1,
-                        dialog_id: admin.currentDialogue
-                    },
-                    markable: 1
-                };
-                var msgSenderID = parseInt(admin.currentUserID);
-                inputField.value = ""
-                msg.id = QB.chat.send(msgSenderID, msg);
-
-                if (msg.id) {
-                    let div = document.createElement('div')
-                    div.classList.add("your-messages", "message-box")
-                    let div2 = document.createElement("div")
-                    div2.classList.add("image-outer")
-                    let img = document.createElement("img")
-                    img.src = "https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg"
-                    img.classList.add("user-pic")
-                    div2.appendChild(img)
-                    let div3 = document.createElement("div")
-                    div3.classList.add('mine-message-box')
-                    let div4 = document.createElement("div")
-                    div4.classList.add('type-message')
-                    let div4TxtNode = document.createTextNode(msg.body)
-                    div4.appendChild(div4TxtNode)
-                    div3.appendChild(div4)
-                    div.appendChild(div2)
-                    div.appendChild(div3)
-
-                    let div_del = document.createElement("div")
-                    div_del.classList.add("delete_icon")
-                    div_del.setAttribute('onclick', `deleteOneMsg("${msg.id}")`)
-                    let img_del = document.createElement("img")
-                    img_del.src = "images/bin.png"
-                    img_del.title = "Delete"
-                    div_del.appendChild(img_del)
-                    div.appendChild(div_del)
-
-                    // <div class="delete_icon" onclick='deleteOneMsg("${item._id}")' >
-                    // <img src='images/bin.png' title="Delete"/>
-                    // </div>
-
-
-
-                    let divTime = document.createElement("div")
-                    divTime.classList.add("time-chat-sending")
-                    let timeTxt = document.createTextNode(new Date().getHours() + ":" + new Date().getMinutes())
-                    divTime.appendChild(timeTxt)
-                    div.appendChild(divTime)
-                    // container.insertBefore(divTime, container.childNodes[0])
-                    container.insertBefore(div, container.childNodes[0])
-
-                    // console.log(_userID, msg);
-
-                    for (const item of userArray) {
-                        let dialogue = item.dataset.userId
-                        if (dialogue == _userID) {
-                            let msgDiv = item.getElementsByClassName("user-message")
-                            let txtMsg = msgDiv[0].childNodes[0]
-                            let txtNode = document.createTextNode(msg.body)
-                            txtMsg.remove()
-                            msgDiv[0].appendChild(txtNode)
-                            userArray.forEach((item, key) => {
-                                let value = item.getAttribute('data-user-id')
-                                if (value == _userID) {
-                                    item.remove()
-                                    leftSide.appendChild(item)
-
-                                }
-
-                            })
-
-
-                        }
+                        })
 
 
                     }
-                }
 
+
+                }
             }
+
         }
+
     }
 
 
@@ -850,7 +754,7 @@ input_files.addEventListener("change", function () {
         inputMSg.disabled = true
 
     }
-    
+
 })
 
 
@@ -883,8 +787,13 @@ function onMsgListener(userID) {
             if (dialogue == userId) {
                 let msgDiv = item.getElementsByClassName("user-message")
                 let txtMsg = msgDiv[0].childNodes[0]
-                
-                let txtNode = document.createTextNode( msg.body)
+                let txtNode
+                if (msg.body.length > 25) {
+                    txtNode = document.createTextNode("Attachment")
+                } else {
+
+                    txtNode = document.createTextNode(msg.body)
+                }
                 txtMsg.remove()
                 msgDiv[0].appendChild(txtNode)
                 userArray.forEach((item, key) => {
@@ -920,11 +829,11 @@ function onMsgListener(userID) {
         // img.src = "https://i1.sndcdn.com/avatars-avI8WNqzZkFhR4di-POKrYA-t500x500.jpg"
         if (msg.extension.hasOwnProperty("attachments")) {
             if (msg.extension.attachments.length > 0) {
-                var fileUID = msg.extension.attachments[0].uid;
+                var fileUID = msg.body
                 var fileUrl = QB.content.privateUrl(fileUID);
                 // var fileUrl = QB.content.publicUrl(fileUID); - content create and upload param 'public' = true
                 // var  = "<img src='" + fileUrl + "' alt='photo'/>";
-                let imageHTML = document.createElement("img")
+                // let imageHTML = document.createElement("img")
                 imageHTML.src = fileUrl
                 imageHTML.id = "img_exist"
             }
@@ -951,9 +860,8 @@ function onMsgListener(userID) {
                 let div4 = document.createElement("div")
                 div4.classList.add('type-message')
                 let div4TxtNode
-                if (msg.body.startsWith("https:") || msg.body.startsWith("http:")) {
-                    let imageHTML = document.createElement("img")
-                    imageHTML.src = msg.body
+                if (msg.body.length > 25) {
+
                     div4.appendChild(imageHTML)
 
                 } else {
